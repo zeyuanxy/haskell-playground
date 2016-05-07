@@ -7,7 +7,7 @@ primesR :: Int -> Int -> [Int]
 primesR x y = filter isPrime [x..y]
 
 goldbach :: Int -> (Int, Int)
-goldbach n = head [(x, y) | x <- primesR 2 n, y <- primesR 2 n, x /= y, x + y == n]
+goldbach n = head [(x, y) | x <- primesR 2 n, y <- primesR 2 n, x + y == n]
 
 main :: IO ()
 main = do
