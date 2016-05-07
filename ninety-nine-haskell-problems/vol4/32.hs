@@ -1,9 +1,10 @@
-coprime :: Int -> Int -> Bool
-coprime x y = gcd x y == 1
+myGCD :: Int -> Int -> Int
+myGCD x y | y == 0 = abs x
+          | otherwise = myGCD y (x `mod` y)
 
 main :: IO ()
 main = do
     x <- getLine
     y <- getLine
-    let value = coprime (read x) (read y)
+    let value = myGCD (read x) (read y)
     print value
