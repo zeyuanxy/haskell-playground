@@ -13,8 +13,11 @@ primeFactors n = primeFactors' n 2
 prime_factors_mult :: Int -> [(Int, Int)]
 prime_factors_mult n = encode . primeFactors $ n
 
+phi :: Int -> Int
+phi m = product [(p - 1) * p ^ (n - 1) | (p, n) <- prime_factors_mult m]
+
 main :: IO ()
 main = do
     n <- getLine
-    let value = prime_factors_mult (read n)
+    let value = phi (read n)
     print value
