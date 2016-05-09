@@ -21,6 +21,8 @@ impl' a b = (not' a) `or'` b
 
 equ' a b = not' (xor' a b)
 
-main = do
-    let value = True `and'` False
-    print value
+table :: (Bool -> Bool -> Bool) -> IO ()
+table f = mapM_ putStrLn [show a ++ " " ++ show b ++ " " ++ show (f a b)
+             | a <- [True, False], b <- [True, False]]
+
+main = table (\a b -> (and' a (or' a b)))
