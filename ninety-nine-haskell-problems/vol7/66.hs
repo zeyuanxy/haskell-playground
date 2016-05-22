@@ -5,15 +5,25 @@ data Tree a = Empty | Branch a (Tree a) (Tree a)
 
 type Pos = (Int, Int)
 
+-- copied from https://wiki.haskell.org/99_questions/Solutions/66
 layout :: Tree a -> Tree (a, Pos)
-layout t = fst $ layout' 1 1 (depth t) t
-    where layout' x y d Empty = (Empty, x)
-          layout' x y d (Branch root l r) = (Branch (root, (x', y)) l' r', x' + s * 2)
-            where (l', x') = layout' x (y + 1) (d - 1) l 
-                  (r', x'') = layout' (x' + s + 1) (y + 1) (d - 1) r
-                  s = if d > 1 then 2 ^ (d - 2) else 0
-          depth Empty = 0
-          depth (Branch _ l r) = 1 + max (depth l) (depth r)
+layout t = t'
+  where (l, t', r) = layout' x' 1 t
+        x' = maximum l + 1
+
+        layout' :: Int -> Int -> Tree a -> ([Int], Tree (a, Pos), [Int])
+        layout' x y Empty = ([], Empty, [])
+        layout' x y (Branch a l r) = (ll', Branch (a, (x, y)) l' r', rr')
+          where (ll, l', lr) = layout' (x - sep) (y + 1) l
+                (rl, r', rr) = layout' (x + sep) (y + 1) r
+                sep = maximum (0:zipWith (+) lr rl) `div` 2 + 1
+                ll' = 0 : overlay (map (+sep) ll) (map (subtract sep) rl)
+                rr' = 0 : overlay (map (+sep) rr) (map (subtract sep) lr)
+
+overlay :: [a] -> [a] -> [a]
+overlay [] ys = ys
+overlay xs [] = xs
+overlay (x:xs) (y:ys) = x : overlay xs ys
 
 tree65 = Branch 'n'
                 (Branch 'k'
