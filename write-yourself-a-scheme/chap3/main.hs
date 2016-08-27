@@ -1,24 +1,22 @@
 -- @Author: Zeyuan Shang
 -- @Date:   2016-08-13 14:00:45
 -- @Last Modified by:   Zeyuan Shang
--- @Last Modified time: 2016-08-16 21:58:38
+-- @Last Modified time: 2016-08-27 16:13:59
 
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment
 import Control.Monad
 
 main :: IO ()
-main = do
-    (expr:_) <- getArgs
-    putStrLn (readExpr expr)
+main = getArgs >>= putStrLn . show . eval . readExpr . (!! 0)
 
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 
-readExpr :: String -> String
+readExpr :: String -> LispVal
 readExpr input = case parse parseExpr "lisp" input of
-    Left err -> "No match: " ++ show err
-    Right val -> "Found value : " ++ show val
+    Left err -> String $ "No match: " ++ show err
+    Right val -> val
 
 spaces :: Parser ()
 spaces = skipMany1 space
@@ -88,3 +86,32 @@ unwordsList :: [LispVal] -> String
 unwordsList = unwords . map showVal
 
 instance Show LispVal where show = showVal
+
+eval :: LispVal -> LispVal
+eval val@(String _) = val
+eval val@(Number _) = val
+eval val@(Bool _) = val
+eval (List [Atom "quote", val]) = val
+eval (List (Atom func : args)) = apply func $ map eval args
+
+apply :: String -> [LispVal] -> LispVal
+apply func args = maybe (Bool False) ($ args) $ lookup func primitives
+
+primitives :: [(String, [LispVal] -> LispVal)]
+primitives = [("+", numericBinop (+)),
+              ("-", numericBinop (-)),
+              ("*", numericBinop (*)),
+              ("/", numericBinop div),
+              ("mod", numericBinop mod),
+              ("quotient", numericBinop quot),
+              ("remainder", numericBinop rem) ]
+
+numericBinop :: (Integer -> Integer -> Integer) -> [LispVal] -> LispVal
+numericBinop op params = Number $ foldl1 op $ map unpackNum params
+
+unpackNum :: LispVal -> Integer
+unpackNum (Number n) = n
+unpackNum (String n) = let parsed = reads n in
+                        if null parsed then 0 else fst $ parsed !! 0
+unpackNum (List [n]) = unpackNum n
+unpackNum _ = 0
