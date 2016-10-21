@@ -84,7 +84,7 @@
            num-list))
 
 (define (length lst)
-    (fold (lambda (x, y)
+    (fold (lambda (x y)
                   (+ x 1)
            0
            lst)))
@@ -129,36 +129,4 @@
                        (cons x y)
                        y))
            '()
-           lst))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+           lst)) 
