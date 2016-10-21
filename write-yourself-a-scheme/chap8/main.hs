@@ -1,7 +1,7 @@
 -- @Author: Zeyuan Shang
 -- @Date:   2016-08-13 14:00:45
 -- @Last Modified by:   Zeyuan Shang
--- @Last Modified time: 2016-10-21 22:27:15
+-- @Last Modified time: 2016-10-21 22:34:21
 
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment
@@ -141,9 +141,9 @@ eval env (List [Atom "define", Atom var, form]) =
   eval env form >>= defineVar env var
 eval env (List (Atom "define" : List (Atom var : params) : body)) = 
     makeNormalFunc env params body >>= defineVar env var
-eval env (List (Atom "define" : DottedList (Atom var : params) : varargs : body)) = 
+eval env (List (Atom "define" : DottedList (Atom var : params) varargs : body)) = 
     makeVarargs varargs env params body >>= defineVar env var
-eval env (List (Atom "lambda" : List params :: body)) = 
+eval env (List (Atom "lambda" : List params : body)) = 
     makeNormalFunc env params body
 eval env (List (Atom "lambda" : DottedList params varargs : body)) = 
     makeVarargs varargs env params body
